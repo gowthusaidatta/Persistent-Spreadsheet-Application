@@ -10,3 +10,4 @@
 2026-03-04T14:54:22.1458696+05:30 - docs: describe sheet state validation rules
 2026-03-04T14:54:22.2717441+05:30 - docs: capture JSON storage path conventions
 2026-03-04T14:54:22.3737576+05:30 - docs: describe CSV import mapping model
+2026-03-04T14:54:22.4816321+05:30 - docs: document formula string preservation on import
