@@ -25,3 +25,4 @@
 2026-03-04T14:54:23.9159180+05:30 - docs: document sample curl commands
 2026-03-04T14:54:24.0433857+05:30 - docs: add data integrity verification checklist
 2026-03-04T14:54:24.1610692+05:30 - docs: include submission artifact checklist
+2026-03-04T14:54:24.3017466+05:30 - docs: add project directory reference
