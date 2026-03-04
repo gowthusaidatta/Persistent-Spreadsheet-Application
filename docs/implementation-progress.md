@@ -13,3 +13,4 @@
 2026-03-04T14:54:22.4816321+05:30 - docs: document formula string preservation on import
 2026-03-04T14:54:22.5885786+05:30 - docs: outline CSV parser assumptions
 2026-03-04T14:54:22.6948763+05:30 - docs: document CSV export generation flow
+2026-03-04T14:54:22.8010077+05:30 - docs: add arithmetic formula evaluation notes
