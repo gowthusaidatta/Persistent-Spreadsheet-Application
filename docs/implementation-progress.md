@@ -8,3 +8,4 @@
 2026-03-04T14:54:21.8930498+05:30 - docs: define atomic write design decisions
 2026-03-04T14:54:22.0164926+05:30 - docs: add error handling response matrix
 2026-03-04T14:54:22.1458696+05:30 - docs: describe sheet state validation rules
+2026-03-04T14:54:22.2717441+05:30 - docs: capture JSON storage path conventions
