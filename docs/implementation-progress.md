@@ -5,3 +5,4 @@
 2026-03-04T14:54:21.5365973+05:30 - docs: add healthcheck behavior notes
 2026-03-04T14:54:21.6637730+05:30 - docs: document API contract for save state
 2026-03-04T14:54:21.7801177+05:30 - docs: document API contract for load state
+2026-03-04T14:54:21.8930498+05:30 - docs: define atomic write design decisions
