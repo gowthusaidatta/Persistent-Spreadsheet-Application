@@ -18,3 +18,4 @@
 2026-03-04T14:54:23.0379402+05:30 - docs: document API test strategy
 2026-03-04T14:54:23.1540699+05:30 - docs: add test cases for persistence endpoints
 2026-03-04T14:54:23.2909321+05:30 - docs: add test cases for CSV endpoints
+2026-03-04T14:54:23.4136770+05:30 - docs: describe startup initialization sequence
