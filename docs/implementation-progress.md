@@ -12,3 +12,4 @@
 2026-03-04T14:54:22.3737576+05:30 - docs: describe CSV import mapping model
 2026-03-04T14:54:22.4816321+05:30 - docs: document formula string preservation on import
 2026-03-04T14:54:22.5885786+05:30 - docs: outline CSV parser assumptions
+2026-03-04T14:54:22.6948763+05:30 - docs: document CSV export generation flow
