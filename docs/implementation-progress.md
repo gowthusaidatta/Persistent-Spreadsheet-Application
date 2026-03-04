@@ -22,3 +22,4 @@
 2026-03-04T14:54:23.5335304+05:30 - docs: add operational runbook for local setup
 2026-03-04T14:54:23.6535272+05:30 - docs: add docker runtime troubleshooting tips
 2026-03-04T14:54:23.7914894+05:30 - docs: add health endpoint verification steps
+2026-03-04T14:54:23.9159180+05:30 - docs: document sample curl commands
