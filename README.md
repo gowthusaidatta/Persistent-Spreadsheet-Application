@@ -1,92 +1,352 @@
-# Persistent Spreadsheet API
+# Persistent Spreadsheet Application API
 
-Backend service for spreadsheet persistence with atomic JSON storage and CSV import/export.
+Backend service for a **persistent spreadsheet system** that stores sheet state using **atomic JSON file storage** and supports **CSV import/export with formula evaluation**.
+
+The application is fully containerized with **Docker** and persists sheet data using **Docker volumes**, ensuring that data survives container restarts.
+
+---
 
 ## Features
 
-- `PUT /api/sheets/:sheetId/state` saves sheet state as JSON using atomic file writes.
-- `GET /api/sheets/:sheetId/state` loads saved sheet state.
-- `POST /api/sheets/:sheetId/import` imports CSV (`multipart/form-data`, field name: `file`) and overwrites state.
-- `GET /api/sheets/:sheetId/export` exports sheet as CSV with formula evaluation for arithmetic formulas.
-- `GET /health` health endpoint used by Docker healthcheck.
+### Spreadsheet Persistence
 
-## Tech Stack
+* Save spreadsheet state to JSON files.
+* Load spreadsheet state from disk.
+* Atomic write operations prevent data corruption.
 
-- Node.js + Express
-- Filesystem persistence in `DATA_STORAGE_PATH`
-- Docker + Docker Compose with bind-mounted volume (`./app_data`)
+### CSV Import
+
+* Upload CSV files to populate spreadsheet cells.
+* Values beginning with `=` are stored as formulas.
+
+### CSV Export
+
+* Export spreadsheet state as CSV.
+* Arithmetic formulas (`+ - * /`) are evaluated before export.
+
+### Dockerized Deployment
+
+* Application runs inside a Docker container.
+* Persistent storage using Docker volume mapping.
+
+### Health Monitoring
+
+* `/health` endpoint for Docker health checks.
+
+---
+
+## Technology Stack
+
+| Component         | Technology          |
+| ----------------- | ------------------- |
+| Backend Framework | Node.js + Express   |
+| Data Storage      | JSON Files          |
+| Containerization  | Docker              |
+| Orchestration     | Docker Compose      |
+| File Processing   | Node.js File System |
+
+---
+
+## Project Structure
+
+```
+.
+├── src
+│   ├── server.js
+│   ├── app.js
+│   ├── storage.js
+│   ├── csv.js
+│   ├── formula.js
+│
+├── tests
+│   └── api.test.js
+│
+├── Dockerfile
+├── docker-compose.yml
+├── .env.example
+├── README.md
+└── app_data
+```
+
+---
 
 ## Environment Variables
 
-See `.env.example`.
+Defined in `.env.example`.
 
-- `PORT`: Port the API listens on.
-- `DATA_STORAGE_PATH`: Absolute path inside container for sheet JSON files.
+| Variable          | Description                                 |
+| ----------------- | ------------------------------------------- |
+| PORT              | Port on which the API runs                  |
+| DATA_STORAGE_PATH | Directory where sheet JSON files are stored |
 
-## Run Locally (without Docker)
+Example:
 
-```bash
+```
+PORT=3000
+DATA_STORAGE_PATH=/app/data
+```
+
+---
+
+## Running the Application
+
+### Run Without Docker
+
+Install dependencies:
+
+```
 npm install
+```
+
+Copy environment variables:
+
+```
 cp .env.example .env
+```
+
+Start the server:
+
+```
 npm start
 ```
 
-## Run with Docker Compose
+Server runs at:
 
-```bash
+```
+http://localhost:3000
+```
+
+---
+
+## Run Using Docker (Recommended)
+
+Build and start container:
+
+```
 docker-compose up --build
 ```
 
-The compose setup mounts `./app_data` on host to `/app/data` in container so data survives restarts.
+Docker Compose mounts:
 
-## API Examples
-
-### Save State
-
-```bash
-curl -X PUT http://localhost:3000/api/sheets/sheet1/state \
-  -H "Content-Type: application/json" \
-  -d '{"cells":{"A1":"Hello","B1":"World","C1":"=10*2"}}' -i
+```
+./app_data → /app/data
 ```
 
-Expected: `204 No Content`
+This ensures spreadsheet data persists even if containers restart.
 
-### Load State
+---
 
-```bash
+## API Endpoints
+
+### Health Check
+
+```
+GET /health
+```
+
+Response:
+
+```
+OK
+```
+
+---
+
+## Save Spreadsheet State
+
+```
+PUT /api/sheets/:sheetId/state
+```
+
+Example request:
+
+```
+curl -X PUT http://localhost:3000/api/sheets/sheet1/state \
+-H "Content-Type: application/json" \
+-d '{"cells":{"A1":"Hello","B1":"World","C1":"=10*2"}}'
+```
+
+Response:
+
+```
+204 No Content
+```
+
+Data stored as:
+
+```
+/app/data/sheet1.json
+```
+
+Example JSON:
+
+```
+{
+  "cells": {
+    "A1": "Hello",
+    "B1": "World",
+    "C1": "=10*2"
+  }
+}
+```
+
+---
+
+## Load Spreadsheet State
+
+```
+GET /api/sheets/:sheetId/state
+```
+
+Example:
+
+```
 curl http://localhost:3000/api/sheets/sheet1/state
 ```
 
-### Import CSV
+Response:
 
-```bash
-curl -X POST http://localhost:3000/api/sheets/csv-import-test/import \
-  -F "file=@./sample.csv" -i
+```
+{
+ "cells":{
+  "A1":"Hello",
+  "B1":"World",
+  "C1":"=10*2"
+ }
+}
 ```
 
-### Export CSV
+---
 
-```bash
-curl http://localhost:3000/api/sheets/csv-import-test/export
+## Import CSV
+
+```
+POST /api/sheets/:sheetId/import
 ```
 
-## Formula Handling
+Example CSV file:
 
-- Imported CSV values beginning with `=` are stored as formula strings.
-- Export evaluates formulas only when they are simple arithmetic (`+`, `-`, `*`, `/`, parentheses, numbers).
-- Formulas with unsupported tokens (for example cell references) are exported as-is.
+```
+Name,Value,Formula
+ItemA,100,=5*10
+ItemB,200,=20+5
+```
 
-## Architecture Overview
+Upload command:
 
-- `src/server.js`: entrypoint and runtime config
-- `src/app.js`: route definitions and HTTP error handling
-- `src/storage.js`: state validation, storage path handling, atomic JSON writes
-- `src/csv.js`: CSV to/from sheet state conversion
-- `src/formula.js`: safe arithmetic formula evaluation
-- `tests/api.test.js`: API behavior tests
+```
+curl -X POST http://localhost:3000/api/sheets/test/import \
+-F "file=@sample.csv"
+```
+
+The CSV rows are mapped to spreadsheet cells.
+
+Example mapping:
+
+```
+A1 Name
+B1 Value
+C1 Formula
+```
+
+Formulas are stored as strings.
+
+---
+
+## Export CSV
+
+```
+GET /api/sheets/:sheetId/export
+```
+
+Example:
+
+```
+curl http://localhost:3000/api/sheets/test/export
+```
+
+Response:
+
+```
+Name,Value,Formula
+ItemA,100,50
+ItemB,200,25
+```
+
+Formulas are evaluated before export.
+
+Example:
+
+```
+=5*10 → 50
+=20+5 → 25
+```
+
+---
+
+## Atomic Write Strategy
+
+To prevent file corruption during writes:
+
+1. Data is written to a temporary file.
+2. After successful write, the temp file is atomically renamed to the target file.
+
+This guarantees that:
+
+* The old file remains intact if the write fails.
+* No partially written files occur.
+
+---
+
+## Data Persistence
+
+Docker volume configuration:
+
+```
+volumes:
+  - ./app_data:/app/data
+```
+
+Benefits:
+
+* Sheet files survive container restarts.
+* Data remains accessible on the host system.
+
+Example stored files:
+
+```
+sheet1.json
+csv-import-test.json
+```
+
+---
 
 ## Running Tests
 
-```bash
+```
 npm test
 ```
+
+Tests verify:
+
+* API endpoint behavior
+* JSON persistence
+* CSV import/export
+* Formula evaluation
+
+---
+
+## Example Workflow
+
+1. Save spreadsheet state
+2. Import CSV file
+3. Load stored sheet
+4. Export sheet to CSV
+5. Restart container
+6. Verify data still exists
+
+---
+
+## License
+
+This project is intended for educational and evaluation purposes.
